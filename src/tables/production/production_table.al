@@ -7,6 +7,7 @@ tableextension 50100 SalesSetupExt extends "Sales & Receivables Setup"
     {
         field(50100; "No."; Code[10])
         {
+            Caption = 'Modified Prodution No.';
             TableRelation = "No. Series";
         }
     }
@@ -40,15 +41,17 @@ table 50100 ProductionHeader
         {
             DataClassification = ToBeClassified;
             // Editable = false;
+            Caption = 'No.';
 
-            trigger OnValidate()
-            begin
-                if "No." <> xRec."No." then begin
-                    SalesSetup.Get();
-                    NoSeriesMgt.TestManual(SalesSetup."No.");
-                    "No. Series" := '';
-                end;
-            end;
+            // trigger OnValidate()
+            // begin
+            //     if "No." <> xRec."No." then begin
+            //         SalesSetup.Get();
+            //         NoSeriesMgt.TestManual(SalesSetup."No.");
+            //         "No. Series" := '';
+            //     end;
+            // end;
+
         }
         field(50100; "Item No."; Code[20])
         {
@@ -173,10 +176,10 @@ table 50100 ProductionHeader
 
     trigger OnInsert()
     begin
+        SalesSetup.Get();
+        SalesSetup.TestField("No.");
         if "No." = '' then begin
-            SalesSetup.Get();
-            SalesSetup.TestField("No.");
-            NoSeriesMgt.GetNextNo(SalesSetup."No.");
+            "No." := NoSeriesMgt.GetNextNo(SalesSetup."No.", 0D, false);
         end;
         "Created By" := UserId;
         "DateTime Created" := CurrentDateTime;
